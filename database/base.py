@@ -1,13 +1,14 @@
+from collections.abc import AsyncGenerator
 from datetime import datetime
 
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import DateTime, func
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from src.config import settings
 
 async_engine = create_async_engine(
-    settings.base_url, echo=True, pool_size=5, max_overflow=10
+    url=settings.base_url, echo=True, pool_size=5, max_overflow=10
 )
 
 async_session = async_sessionmaker(
@@ -18,19 +19,17 @@ async_session = async_sessionmaker(
 )
 
 
-async def get_db():
+async def get_db() -> AsyncGenerator[AsyncSession | None]:
     async with async_session() as session:
         yield session
 
 
 class Base(DeclarativeBase):
     created_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        nullable=False,
-        server_default=func.now
+        DateTime, nullable=False, server_default=func.now()
     )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         cols = []
         columns_to_show = 3
         for idx, col in enumerate(self.__table__.columns.keys()):

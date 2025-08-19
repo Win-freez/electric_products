@@ -1,5 +1,6 @@
-from pydantic import BaseModel, ConfigDict
 from decimal import Decimal
+
+from pydantic import BaseModel, ConfigDict
 
 
 class ProductPrice(BaseModel):
@@ -33,4 +34,3 @@ class Product(BaseModel):
     barcode: str
     price: ProductPrice
     total_quantity: int
-
