@@ -6,15 +6,18 @@ BASE_DIR = Path(__file__).parent.parent
 
 
 class Settings(BaseSettings):
-    DB_HOST: str
-    DB_NAME: str
-    DB_PORT: int
-    DB_USERNAME: str
-    DB_PASSWORD: str
+    POSTGRES_HOST: str
+    POSTGRES_NAME: str
+    POSTGRES_PORT: int
+    POSTGRES_USERNAME: str
+    POSTGRES_PASSWORD: str
 
     @property
     def base_url(self) -> str:
-        return f"postgresql+asyncpg://{self.DB_USERNAME}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        return (
+            f"postgresql+asyncpg://{self.POSTGRES_USERNAME}:{self.POSTGRES_PASSWORD}@"
+            f"{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_NAME}"
+        )
 
     model_config = SettingsConfigDict(
         case_sensitive=False,
