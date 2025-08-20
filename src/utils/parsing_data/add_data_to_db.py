@@ -143,6 +143,7 @@ async def add_data_prices() -> None:
 
 
 async def main() -> None:
+    await add_data_products()
     await add_data_prices()
 
 
