@@ -6,6 +6,9 @@ authors = [
     {name = "Win.freez",email = "Win.freez@yandex.ru"}
 ]
 readme = "README.md"
+
+
+[tool.poetry]
 package-mode = false
 
 

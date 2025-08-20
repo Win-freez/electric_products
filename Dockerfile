@@ -8,4 +8,6 @@ RUN poetry config virtualenvs.create false
 COPY poetry.lock pyproject.toml ./
 RUN poetry install --no-interaction --no-root
 COPY . .
+RUN chmod +x /app/prestart.sh
+ENTRYPOINT ["/app/prestart.sh"]
 CMD ["python", "-m", "src.main"]
