@@ -18,3 +18,4 @@ repos:
         entry: poetry run mypy
         language: system
         types: [ python ]
+        exclude: ^(tests/|alembic/)

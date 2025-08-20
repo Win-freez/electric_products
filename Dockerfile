@@ -6,6 +6,6 @@ WORKDIR /app
 RUN pip install --no-cache-dir poetry==2.1.3
 RUN poetry config virtualenvs.create false
 COPY poetry.lock pyproject.toml ./
-RUN poetry install --no-root
+RUN poetry install --no-interaction --no-root
 COPY . .
 CMD ["python", "-m", "src.main"]

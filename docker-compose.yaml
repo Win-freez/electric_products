@@ -6,6 +6,8 @@ services:
     container_name: app-container
     ports:
       - "8000:8000"
+    volumes:
+      - .:/app
     networks:
       - backend
     depends_on:
