@@ -136,12 +136,3 @@ class DataParser:
             "gold": self._parse_decimal(data.get("gold")),
             "platinum": self._parse_decimal(data.get("platinum")),
         }
-
-    # Дополнительные методы для других типов данных
-    def parse_stock_data(self, data: dict[str, Any]) -> dict:
-        """Парсит данные остатков"""
-        return {
-            "product_code": self._clean_str(data.get("Код", "")),
-            "quantity": self._parse_int(data.get("Количество", 0)),
-            "warehouse": self._clean_str(data.get("Склад", "")),
-        }

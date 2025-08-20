@@ -43,12 +43,12 @@ class ProductPricesBase(BaseModel):
     model_config = ConfigDict(extra="ignore", from_attributes=True)
 
     product_code: str = Field(..., max_length=20, examples=["00078962"])
-    opt_card: Decimal = Field(..., ge=0, examples=[4500.00])
-    opt_card_plus: Decimal = Field(..., ge=0, examples=[4250.00])
-    opt: Decimal = Field(..., ge=0, examples=[3650.00])
-    retail: Decimal = Field(..., ge=0, examples=[4500.00])
-    gold: Decimal = Field(..., ge=0, examples=[4275.00])
-    platinum: Decimal = Field(..., ge=0, examples=[4050.00])
+    opt_card: Decimal | None = Field(None, ge=0, examples=[4500.00])
+    opt_card_plus: Decimal | None = Field(None, ge=0, examples=[4250.00])
+    opt: Decimal | None = Field(None, ge=0, examples=[3650.00])
+    retail: Decimal | None = Field(None, ge=0, examples=[4500.00])
+    gold: Decimal | None = Field(None, ge=0, examples=[4275.00])
+    platinum: Decimal | None = Field(None, ge=0, examples=[4050.00])
 
 
 class ProductStockBase(BaseModel):
@@ -56,7 +56,7 @@ class ProductStockBase(BaseModel):
 
     product_code: str = Field(..., max_length=20, examples=["00078962"])
     quantity: int = Field(default=0, ge=0)
-    max_purchase: int | None = Field(None, ge=0)
+    max_purchase: Decimal | None = Field(None, ge=0)
 
 
 # Create schemas

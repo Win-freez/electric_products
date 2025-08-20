@@ -1,7 +1,7 @@
 from collections.abc import AsyncGenerator
 from datetime import datetime
 
-from sqlalchemy import DateTime, func
+from sqlalchemy import DateTime, MetaData, func
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -25,6 +25,8 @@ async def get_db() -> AsyncGenerator[AsyncSession | None]:
 
 
 class Base(DeclarativeBase):
+    metadata = MetaData(naming_convention=settings.naming_convention)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
     )

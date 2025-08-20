@@ -104,9 +104,9 @@ async def add_data_prices() -> None:
                 all_data = dp.parse_price_data(item)
 
                 prices_data = ProductPricesBase(**all_data)
-                stock_data = ProductStockBase(**all_data)
+                stocks_data = ProductStockBase(**all_data)
 
-                stock_dict = stock_data.model_dump(exclude_unset=True)
+                stock_dict = stocks_data.model_dump(exclude_unset=True)
                 prices_dict = prices_data.model_dump(exclude_unset=True)
 
                 stmt_stock = (
@@ -143,7 +143,6 @@ async def add_data_prices() -> None:
 
 
 async def main() -> None:
-    await add_data_products()
     await add_data_prices()
 
 

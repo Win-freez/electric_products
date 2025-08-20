@@ -1,8 +1,8 @@
 """create tables products
 
-Revision ID: 92ecdff84642
+Revision ID: 26cb74def952
 Revises:
-Create Date: 2025-08-20 09:14:04.394940
+Create Date: 2025-08-20 14:07:03.130456
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "92ecdff84642"
+revision: str = "26cb74def952"
 down_revision: str | Sequence[str] | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -34,7 +34,8 @@ def upgrade() -> None:
         sa.Column(
             "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
-        sa.PrimaryKeyConstraint("code"),
+        sa.PrimaryKeyConstraint("code", name=op.f("pk_products")),
+        sa.UniqueConstraint("code", name=op.f("uq_products_code")),
     )
     op.create_table(
         "product_barcodes",
@@ -47,9 +48,12 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["product_code"],
             ["products.code"],
+            name=op.f("fk_product_barcodes_product_code_products"),
+            onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("barcode"),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_product_barcodes")),
+        sa.UniqueConstraint("barcode", name=op.f("uq_product_barcodes_barcode")),
     )
     op.create_table(
         "product_descriptions",
@@ -63,8 +67,17 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["product_code"],
             ["products.code"],
+            name=op.f("fk_product_descriptions_product_code_products"),
+            onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("id"),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_product_descriptions")),
+    )
+    op.create_index(
+        op.f("ix_product_descriptions_product_code"),
+        "product_descriptions",
+        ["product_code"],
+        unique=True,
     )
     op.create_table(
         "product_dimensions",
@@ -80,8 +93,17 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["product_code"],
             ["products.code"],
+            name=op.f("fk_product_dimensions_product_code_products"),
+            onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("id"),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_product_dimensions")),
+    )
+    op.create_index(
+        op.f("ix_product_dimensions_product_code"),
+        "product_dimensions",
+        ["product_code"],
+        unique=True,
     )
     op.create_table(
         "product_online",
@@ -96,15 +118,24 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["product_code"],
             ["products.code"],
+            name=op.f("fk_product_online_product_code_products"),
+            onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("id"),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_product_online")),
+    )
+    op.create_index(
+        op.f("ix_product_online_product_code"),
+        "product_online",
+        ["product_code"],
+        unique=True,
     )
     op.create_table(
         "product_stocks",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
         sa.Column("product_code", sa.String(length=20), nullable=False),
         sa.Column("quantity", sa.Integer(), nullable=False),
-        sa.Column("max_purchase", sa.Integer(), nullable=True),
+        sa.Column("max_purchase", sa.DECIMAL(), nullable=True),
         sa.Column(
             "updated_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
@@ -114,13 +145,22 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(
             ["product_code"],
             ["products.code"],
+            name=op.f("fk_product_stocks_product_code_products"),
+            onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("id"),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_product_stocks")),
+    )
+    op.create_index(
+        op.f("ix_product_stocks_product_code"),
+        "product_stocks",
+        ["product_code"],
+        unique=True,
     )
     op.create_table(
         "products_prices",
         sa.Column("id", sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column("code", sa.String(length=20), nullable=False),
+        sa.Column("product_code", sa.String(length=20), nullable=False),
         sa.Column("opt_card", sa.DECIMAL(precision=10, scale=2), nullable=False),
         sa.Column("opt_card_plus", sa.DECIMAL(precision=10, scale=2), nullable=False),
         sa.Column("opt", sa.DECIMAL(precision=10, scale=2), nullable=False),
@@ -131,13 +171,19 @@ def upgrade() -> None:
             "created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
         sa.ForeignKeyConstraint(
-            ["code"],
+            ["product_code"],
             ["products.code"],
+            name=op.f("fk_products_prices_product_code_products"),
+            onupdate="CASCADE",
+            ondelete="CASCADE",
         ),
-        sa.PrimaryKeyConstraint("id"),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_products_prices")),
     )
     op.create_index(
-        op.f("ix_products_prices_code"), "products_prices", ["code"], unique=True
+        op.f("ix_products_prices_product_code"),
+        "products_prices",
+        ["product_code"],
+        unique=True,
     )
     # ### end Alembic commands ###
 
@@ -145,11 +191,19 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_index(op.f("ix_products_prices_code"), table_name="products_prices")
+    op.drop_index(op.f("ix_products_prices_product_code"), table_name="products_prices")
     op.drop_table("products_prices")
+    op.drop_index(op.f("ix_product_stocks_product_code"), table_name="product_stocks")
     op.drop_table("product_stocks")
+    op.drop_index(op.f("ix_product_online_product_code"), table_name="product_online")
     op.drop_table("product_online")
+    op.drop_index(
+        op.f("ix_product_dimensions_product_code"), table_name="product_dimensions"
+    )
     op.drop_table("product_dimensions")
+    op.drop_index(
+        op.f("ix_product_descriptions_product_code"), table_name="product_descriptions"
+    )
     op.drop_table("product_descriptions")
     op.drop_table("product_barcodes")
     op.drop_table("products")
