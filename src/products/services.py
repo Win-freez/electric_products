@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from src.products.models import Product
 
@@ -18,7 +18,7 @@ class ProductService:
                 joinedload(Product.description),
                 joinedload(Product.dimensions),
                 joinedload(Product.prices),
-                joinedload(Product.stock),
+                selectinload(Product.stocks),
             )
             .where(Product.code == product_code)
         )

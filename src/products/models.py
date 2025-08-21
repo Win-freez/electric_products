@@ -1,20 +1,23 @@
-from datetime import datetime
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     DECIMAL,
     Boolean,
-    DateTime,
     ForeignKey,
     Integer,
     Numeric,
     String,
     Text,
-    func,
+    UniqueConstraint,
+    text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database.base import Base
+
+if TYPE_CHECKING:
+    from src.warehouses.models import Warehouse
 
 
 class Product(Base):
@@ -55,10 +58,9 @@ class Product(Base):
         uselist=False,
         cascade="all, delete-orphan",
     )
-    stock: Mapped["ProductStock"] = relationship(
+    stocks: Mapped[list["ProductStock"]] = relationship(
         "ProductStock",
         back_populates="product",
-        uselist=False,
         cascade="all, delete-orphan",
     )
 
@@ -66,7 +68,7 @@ class Product(Base):
 class ProductDescription(Base):
     __tablename__ = "product_descriptions"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     product_code: Mapped[str] = mapped_column(
         ForeignKey("products.code", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
@@ -84,7 +86,7 @@ class ProductDescription(Base):
 class ProductOnline(Base):
     __tablename__ = "product_online"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     product_code: Mapped[str] = mapped_column(
         ForeignKey("products.code", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
@@ -103,7 +105,7 @@ class ProductOnline(Base):
 class ProductDimensions(Base):
     __tablename__ = "product_dimensions"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     product_code: Mapped[str] = mapped_column(
         ForeignKey("products.code", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
@@ -123,7 +125,7 @@ class ProductDimensions(Base):
 class ProductBarcode(Base):
     __tablename__ = "product_barcodes"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     product_code: Mapped[str] = mapped_column(
         ForeignKey("products.code", onupdate="CASCADE", ondelete="CASCADE")
     )
@@ -135,7 +137,7 @@ class ProductBarcode(Base):
 class ProductPrices(Base):
     __tablename__ = "products_prices"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     product_code: Mapped[str] = mapped_column(
         ForeignKey("products.code", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
@@ -159,19 +161,25 @@ class ProductPrices(Base):
 class ProductStock(Base):
     __tablename__ = "product_stocks"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     product_code: Mapped[str] = mapped_column(
         ForeignKey("products.code", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
-        unique=True,
         index=True,
     )
-    quantity: Mapped[int] = mapped_column(Integer, default=0)
-    max_purchase: Mapped[Decimal | None] = mapped_column(DECIMAL, nullable=True)
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime, server_default=func.now(), onupdate=func.now()
+    warehouse_id: Mapped[int] = mapped_column(
+        ForeignKey("warehouses.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
 
-    product: Mapped["Product"] = relationship(
-        "Product", back_populates="stock", uselist=False
+    quantity: Mapped[int] = mapped_column(default=0, server_default=text("0"))
+    reserved: Mapped[int] = mapped_column(default=0, server_default=text("0"))
+
+    product: Mapped["Product"] = relationship("Product", back_populates="stocks")
+
+    warehouse: Mapped["Warehouse"] = relationship("Warehouse", back_populates="stocks")
+
+    __table_args__ = (
+        UniqueConstraint("product_code", "warehouse_id", name="uq_product_warehouse"),
     )

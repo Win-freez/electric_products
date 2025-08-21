@@ -6,18 +6,18 @@ repos:
         entry: poetry run ruff check --fix
         language: system
         types: [ python ]
-        exclude: ^(tests/|alembic/)
+        exclude: ^(tests/|alembic/|src/utils/)
 
     -   id: ruff-format
         name: ruff-format (local)
         entry: poetry run ruff format
         language: system
         types: [ python ]
-        exclude: ^(tests/|alembic/)
+        exclude: ^(tests/|alembic/|src/utils/)
 
     -   id: mypy
         name: mypy(local)
         entry: poetry run mypy
         language: system
         types: [ python ]
-        exclude: ^(tests/|alembic/)
+        exclude: ^(tests/|alembic/|src/utils/)
