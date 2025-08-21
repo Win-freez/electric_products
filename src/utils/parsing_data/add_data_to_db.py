@@ -15,7 +15,7 @@ from src.products.models import (
     ProductPrices,
     ProductStock,
 )
-from src.products.schemas import ProductPricesBase, ProductStockBase
+from src.products.schemas import ProductPricesSchema, ProductStockSchema
 from src.utils.parsing_data.data_parser import DataParser
 from src.utils.parsing_data.read_data_from_csv import make_dict_from_csv
 
@@ -103,8 +103,8 @@ async def add_data_prices() -> None:
             for item in make_dict_from_csv(csv_path):
                 all_data = dp.parse_price_data(item)
 
-                prices_data = ProductPricesBase(**all_data)
-                stocks_data = ProductStockBase(**all_data)
+                prices_data = ProductPricesSchema(**all_data)
+                stocks_data = ProductStockSchema(**all_data)
 
                 stock_dict = stocks_data.model_dump(exclude_unset=True)
                 prices_dict = prices_data.model_dump(exclude_unset=True)
